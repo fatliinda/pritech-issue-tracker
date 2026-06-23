@@ -1,6 +1,6 @@
 # PRITECH Mini Issue Tracker
 
-Laravel technical task implementation for a **Mini Issue Tracker**.
+Laravel technical task for **Mini Issue Tracker**.
 
 ## Features
 
@@ -73,4 +73,81 @@ http://127.0.0.1:8000
 /tags
 ```
 
-Run `composer install` locally before testing.
+PRITECH Mini Issue Tracker
+
+Laravel technical task implementation for a Mini Issue Tracker.
+
+Features
+Project CRUD
+Project detail page with related issues
+Issue CRUD
+Issue filters by status, priority, tag, and text search
+AJAX issue search with debounce
+Tag creation with unique names
+AJAX attach/detach tags on issue detail page
+AJAX paginated comments on issue detail page
+AJAX comment creation with validation errors rendered on the page
+Eloquent relationships with eager loading to avoid N+1 queries
+Migrations, factories, and seeders for demo data
+Additional start_date and deadline fields added to projects using a separate migration
+Bonus Feature
+
+Added AJAX issue search with debounce.
+
+Users can search issues by title or description. The issue table updates dynamically without refreshing the page.
+
+Tech Stack
+Laravel 13
+PHP 8.3+
+MySQL
+Blade
+Vanilla JavaScript Fetch API
+Bootstrap 5 CDN
+Installation
+
+Clone the repository:
+
+git clone https://github.com/fatliinda/pritech-issue-tracker
+cd pritech-issue-tracker
+
+Install PHP dependencies:
+
+composer install
+
+Create the environment file:
+
+cp .env.example .env
+
+On Windows:
+
+copy .env.example .env
+
+Generate the application key:
+
+php artisan key:generate
+
+Create a MySQL database:
+
+CREATE DATABASE pritech_issue_tracker;
+
+Update .env if needed:
+
+DB_DATABASE=pritech_issue_tracker
+DB_USERNAME=root
+DB_PASSWORD=
+
+Run migrations and seeders:
+
+php artisan migrate:fresh --seed
+
+Start the local server:
+
+php artisan serve
+
+Open:
+
+http://127.0.0.1:8000
+Main URLs
+/projects
+/issues
+/tags
