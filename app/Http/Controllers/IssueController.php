@@ -84,4 +84,21 @@ class IssueController extends Controller
             ->route('issues.index')
             ->with('success', 'Issue deleted successfully.');
     }
+    public function search(Request $request)
+    {
+        $search = trim($request->query('q', ''));
+
+        $issues = Issue::with(['project', 'tags'])
+            ->withCount('comments')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->get();
+
+        return view('issues.partials.rows', compact('issues'))->render();
+    }
 }

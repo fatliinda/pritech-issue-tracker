@@ -10,7 +10,13 @@
     <form method="GET" action="{{ route('issues.index') }}" class="row g-2 align-items-end">
         <div class="col-md-3">
             <label class="form-label">Search</label>
-            <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Title or description">
+            <input
+                type="text"
+                id="issue-search"
+                name="search"
+                value="{{ request('search') }}"
+                class="form-control"
+                placeholder="Title or description">
         </div>
 
         <div class="col-md-2">
@@ -18,7 +24,9 @@
             <select name="status" class="form-select">
                 <option value="">All</option>
                 @foreach (App\Models\Issue::STATUSES as $status)
-                    <option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst(str_replace('_', ' ', $status)) }}</option>
+                <option value="{{ $status }}" @selected(request('status')===$status)>
+                    {{ ucfirst(str_replace('_', ' ', $status)) }}
+                </option>
                 @endforeach
             </select>
         </div>
@@ -28,7 +36,9 @@
             <select name="priority" class="form-select">
                 <option value="">All</option>
                 @foreach (App\Models\Issue::PRIORITIES as $priority)
-                    <option value="{{ $priority }}" @selected(request('priority') === $priority)>{{ ucfirst($priority) }}</option>
+                <option value="{{ $priority }}" @selected(request('priority')===$priority)>
+                    {{ ucfirst($priority) }}
+                </option>
                 @endforeach
             </select>
         </div>
@@ -38,7 +48,9 @@
             <select name="tag" class="form-select">
                 <option value="">All</option>
                 @foreach ($tags as $tag)
-                    <option value="{{ $tag->id }}" @selected((string) request('tag') === (string) $tag->id)>{{ $tag->name }}</option>
+                <option value="{{ $tag->id }}" @selected((string) request('tag')===(string) $tag->id)>
+                    {{ $tag->name }}
+                </option>
                 @endforeach
             </select>
         </div>
@@ -62,36 +74,49 @@
                 <th class="text-end">Actions</th>
             </tr>
         </thead>
-        <tbody>
-            @forelse ($issues as $issue)
-                <tr>
-                    <td><a href="{{ route('issues.show', $issue) }}" class="fw-semibold text-decoration-none">{{ $issue->title }}</a></td>
-                    <td><a href="{{ route('projects.show', $issue->project) }}" class="text-decoration-none">{{ $issue->project->name }}</a></td>
-                    <td><span class="badge bg-info text-dark">{{ str_replace('_', ' ', $issue->status) }}</span></td>
-                    <td><span class="badge bg-secondary">{{ $issue->priority }}</span></td>
-                    <td>
-                        @foreach ($issue->tags as $tag)
-                            <span class="badge bg-dark">{{ $tag->name }}</span>
-                        @endforeach
-                    </td>
-                    <td>{{ $issue->comments_count }}</td>
-                    <td class="text-end">
-                        <a href="{{ route('issues.edit', $issue) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-                        <form action="{{ route('issues.destroy', $issue) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this issue?')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-sm btn-outline-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr><td colspan="7" class="text-center text-muted py-4">No issues found.</td></tr>
-            @endforelse
+
+        <tbody id="issues-table-body">
+            @include('issues.partials.rows', ['issues' => $issues])
         </tbody>
     </table>
 
-    <div class="mt-3">
+    <div id="issues-pagination" class="mt-3">
         {{ $issues->links() }}
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('issue-search');
+        const tableBody = document.getElementById('issues-table-body');
+        const pagination = document.getElementById('issues-pagination');
+
+        let searchTimeout = null;
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+
+            searchTimeout = setTimeout(() => {
+                const query = searchInput.value;
+
+                fetch(`{{ route('issues.search') }}?q=${encodeURIComponent(query)}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        tableBody.innerHTML = html;
+
+                        if (pagination) {
+                            pagination.style.display = query.trim() ? 'none' : 'block';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                    });
+            }, 400);
+        });
+    });
+</script>
 @endsection

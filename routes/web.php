@@ -7,7 +7,11 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => redirect()->route('projects.index'));
+Route::get('/issues/search', [IssueController::class, 'search'])
+    ->name('issues.search');
+Route::get('/', fn() => redirect()->route('projects.index'));
+Route::get('/issues/search', [IssueController::class, 'search'])
+    ->name('issues.search');
 
 Route::resource('projects', ProjectController::class);
 Route::resource('issues', IssueController::class);
